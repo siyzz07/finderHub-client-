@@ -6,10 +6,10 @@ import { apiRequest } from '../utils/api';
 
 const StatusBadge = ({ status }) => {
   const styles = {
-    Lost: 'bg-red-500/10 text-red-600 border-red-100',
+    Lost: 'bg-red-400 text-red-900 border-red-100',
     Found: 'bg-emerald-500/10 text-emerald-600 border-emerald-100',
     Claimed: 'bg-blue-500/10 text-blue-600 border-blue-100',
-    Returned: 'bg-violet-500/10 text-violet-600 border-violet-100',
+    Returned: 'bg-green-400 text-green-900 border-green-100',
   };
 
   return (

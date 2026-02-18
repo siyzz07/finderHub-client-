@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { X, Upload, MapPin, Loader2, Search, Plus, Sparkles, Image as ImageIcon, CheckCircle, Shield, AlertCircle, Navigation } from 'lucide-react';
+import { X, Upload, MapPin, Loader2, Search, Plus, Sparkles, Image as ImageIcon, CheckCircle, Shield, AlertCircle, Navigation, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import L from 'leaflet';
 import { apiRequest } from '../utils/api';
@@ -131,6 +131,7 @@ export default function ReportItemForm({ onClose, onSuccess, type = 'Lost' }) {
     e.preventDefault();
     if (!position) return alert("Please pin item location on map.");
     if (imageFiles.length === 0) return alert("Please upload at least one image.");
+    if (formData.contactNumber.length < 10) return alert("Please enter a valid 10-digit phone number.");
 
     setLoading(true);
     try {
@@ -172,6 +173,14 @@ export default function ReportItemForm({ onClose, onSuccess, type = 'Lost' }) {
     }
   };
 
+  const validatePhoneNumber = (val) => {
+    // Only allow digits and limit to reasonable phone length
+    const digits = val.replace(/\D/g, '');
+    if (digits.length <= 15) {
+      setFormData({...formData, contactNumber: digits});
+    }
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -186,9 +195,22 @@ export default function ReportItemForm({ onClose, onSuccess, type = 'Lost' }) {
       >
         {/* Map Panel - Left */}
         <div className="w-full lg:w-[45%] h-72 lg:h-auto border-r border-slate-100 dark:border-slate-800/50 relative">
-          <MapContainer center={[20.5937, 78.9629]} zoom={5} className="w-full h-full grayscale-[0.5] dark:grayscale-[0.8]">
-            <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+          <MapContainer center={[20.5937, 78.9629]} zoom={5} className="w-full h-full">
+            <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
             <LocationMarker position={position} setPosition={setPosition} />
+            {position && (
+              <Circle 
+                center={position} 
+                radius={500} 
+                pathOptions={{ 
+                  fillColor: '#3b82f6', 
+                  fillOpacity: 0.1, 
+                  color: '#3b82f6', 
+                  weight: 1,
+                  dashArray: '5, 5'
+                }} 
+              />
+            )}
             <MapHandler center={position} />
           </MapContainer>
           
@@ -264,15 +286,22 @@ export default function ReportItemForm({ onClose, onSuccess, type = 'Lost' }) {
             </div>
 
             <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Direct Contact Signal</label>
-                <input 
-                    required
-                    type="tel" 
-                    placeholder="Provide mobile or telegram identifier..."
-                    className="w-full px-6 h-16 bg-slate-50 dark:bg-slate-800/40 border border-transparent rounded-2xl text-base font-bold focus:ring-4 ring-primary/5 transition-all outline-none dark:text-white focus:border-primary/20"
-                    value={formData.contactNumber}
-                    onChange={(e) => setFormData({...formData, contactNumber: e.target.value})}
-                />
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Contact Phone Number</label>
+                <div className="relative">
+                    <Phone className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input 
+                        required
+                        type="text" 
+                        inputMode="numeric"
+                        placeholder="Enter 10-digit mobile number"
+                        className="w-full pl-14 pr-6 h-16 bg-slate-50 dark:bg-slate-800/40 border border-transparent rounded-2xl text-base font-bold focus:ring-4 ring-primary/5 transition-all outline-none dark:text-white focus:border-primary/20"
+                        value={formData.contactNumber}
+                        onChange={(e) => validatePhoneNumber(e.target.value)}
+                    />
+                </div>
+                {formData.contactNumber && formData.contactNumber.length < 10 && (
+                    <p className="text-[10px] font-bold text-red-500 mt-1 ml-1 uppercase tracking-widest">Number must be at least 10 digits</p>
+                )}
             </div>
 
             <div className="space-y-2">
