@@ -9,6 +9,7 @@ import {
   Shield, ExternalLink, Mail
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { googleLogout } from '@react-oauth/google';
 import { apiRequest } from '../utils/api';
 
 const SidebarItem = ({ id, name, icon, activeTab, setActiveTab }) => (
@@ -249,6 +250,7 @@ export default function AdminDashboard() {
     useEffect(() => { fetchData(); }, []);
 
     const handleLogout = () => {
+        googleLogout();
         sessionStorage.removeItem('accessToken');
         sessionStorage.removeItem('user');
         navigate('/login');

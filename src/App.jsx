@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, MapPin, Menu, X, Sun, Moon, LogIn, ShieldCheck, Heart, LayoutDashboard, Plus, ArrowRight, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { googleLogout } from '@react-oauth/google';
 import AppRouter from './routes/AppRouter';
 import ReportItemForm from './components/ReportItemForm';
 import MyItemsModal from './components/MyItemsModal';
@@ -22,6 +23,7 @@ const Navbar = ({ theme, toggleTheme, onReportClick, onMyItemsClick }) => {
   }, []);
 
   const handleLogout = () => {
+    googleLogout();
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('user');
     navigate('/login');

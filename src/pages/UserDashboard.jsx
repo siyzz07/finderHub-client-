@@ -5,6 +5,7 @@ import {
   Plus, Search, Filter, MoreVertical, MapPin, Clock, CheckCircle, XCircle
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { googleLogout } from '@react-oauth/google';
 
 const Sidebar = ({ activeTab, setActiveTab, user, onLogout }) => {
   const menuItems = [
@@ -271,6 +272,7 @@ export default function UserDashboard() {
   }, []);
 
   const handleLogout = () => {
+    googleLogout();
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('user');
     navigate('/login');

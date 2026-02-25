@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../utils/api';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -41,6 +42,37 @@ const Login = () => {
         }
       } else {
         setError(data.message || 'Verification failed. Access denied.');
+      }
+    } catch (err) {
+      setError('Connection failed. Please check your network.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await apiRequest('/auth/google-login', {
+        method: 'POST',
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        sessionStorage.setItem('accessToken', data.accessToken);
+        const userData = { ...data.user, refreshToken: data.refreshToken, role: data.user.role };
+        sessionStorage.setItem('user', JSON.stringify(userData));
+        
+        if (data.user.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
+      } else {
+        setError(data.message || 'Google login failed.');
       }
     } catch (err) {
       setError('Connection failed. Please check your network.');
@@ -183,6 +215,18 @@ const Login = () => {
             <div className="relative mb-8 text-center">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100 dark:border-slate-800"></div></div>
               <span className="relative px-4 bg-white dark:bg-slate-900 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Or continue with</span>
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google Login Failed')}
+                useOneTap
+                theme="filled_blue"
+                shape="pill"
+                size="large"
+                width="100%"
+              />
             </div>
 
   
